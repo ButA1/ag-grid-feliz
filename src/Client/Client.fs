@@ -4,13 +4,12 @@ open AgGrid
 open Elmish
 open Elmish.React
 open Fable.Core
+open Fable.Core.JsInterop
 open Feliz
 open Feliz.Bulma
 open System
 open Thoth.Fetch
 open Thoth.Json
-
-open Fable.Core.JsInterop
 
 importAll "bulma/css/bulma.css"
 

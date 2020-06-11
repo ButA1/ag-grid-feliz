@@ -10,11 +10,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B27D31AA-9DEE-4DE4-B4BF-939C232AE7D4}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "gridJs.Shared", "src\Shared\gridJs.Shared.fsproj", "{CBCBD8B2-DFEF-4917-92F6-EF1EA04004BD}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Shared", "src\Shared\dataScience.Shared.fsproj", "{CBCBD8B2-DFEF-4917-92F6-EF1EA04004BD}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "gridJs.Server", "src\Server\gridJs.Server.fsproj", "{F49D968D-D418-4C5E-978D-2082583F97A8}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Server", "src\Server\dataScience.Server.fsproj", "{F49D968D-D418-4C5E-978D-2082583F97A8}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "gridJs.Client", "src\Client\gridJs.Client.fsproj", "{6257615B-2E3E-4CE8-A516-0B44EE49FCBC}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Client", "src\Client\dataScience.Client.fsproj", "{6257615B-2E3E-4CE8-A516-0B44EE49FCBC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

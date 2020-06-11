@@ -8,7 +8,7 @@
     <Compile Include="Server.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Shared\gridJs.Shared.fsproj" />
+    <ProjectReference Include="..\Shared\dataScience.Shared.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Saturn" Version="0.12.1" />
