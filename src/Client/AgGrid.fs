@@ -39,15 +39,15 @@ type AgGrid =
 
     static member inline grid props = Interop.reactApi.createElement (agGrid, createObj !!props)
 
+[<Erase>]
 type ColumnDef =
-    { editable : bool
-      filter : string
-      sortable : bool
-      field : string
-      minWidth : int
-      maxWidth : int
-      headerCheckboxSelection : bool
-      checkboxSelection : bool }
-
-let columnDef field =
-    { editable = false; filter = ""; sortable = false; field = field; minWidth = 0; maxWidth = 1000; headerCheckboxSelection = false; checkboxSelection = false }
+    static member inline editable = "editable" ==> true
+    static member inline filter (v:string) = "filter" ==> v
+    static member inline sortable = "sortable" ==> true
+    static member inline field (v:string) = "field" ==> v
+    static member inline field (v:'a -> string) = "field" ==> v (unbox null)
+    static member inline minWidth (v:int) = "minWidth" ==> v
+    static member inline maxWidth (v:int) = "maxWidth" ==> v
+    static member inline headerCheckboxSelection = "headerCheckboxSelection" ==> true
+    static member inline checkboxSelection = "checkboxSelection" ==> true
+    static member inline create v = createObj v

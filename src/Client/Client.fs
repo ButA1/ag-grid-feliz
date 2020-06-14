@@ -11,6 +11,7 @@ open Feliz.Bulma
 open System
 open Thoth.Fetch
 open Thoth.Json
+open Fable.Core.Experimental
 
 importAll "bulma/css/bulma.css"
 
@@ -94,125 +95,134 @@ module Charting =
         {| quarter = "Q3"; spending = 600 |}
         {| quarter = "Q4"; spending = 700 |}
     ]
+    type BrowserData = { year : string; ie : float; firefox : float; safari : float; chrome : float }
     let browserData = [
-        {| year = "2009"; ie = 64.97; firefox = 26.85; safari = 2.79; chrome = 1.37 |}
-        {| year = "2010"; ie = 54.39; firefox = 31.15; safari = 4.22; chrome = 5.94 |}
-        {| year = "2011"; ie = 44.03; firefox = 29.36; safari = 5.94; chrome = 15.01 |}
-        {| year = "2012"; ie = 34.27; firefox = 22.69; safari = 8.09; chrome = 25.99 |}
-        {| year = "2013"; ie = 26.55; firefox = 18.55; safari = 10.66; chrome = 31.71 |}
-        {| year = "2014"; ie = 17.75; firefox = 14.77; safari = 12.63; chrome = 35.85 |}
-        {| year = "2015"; ie = 13.3; firefox = 11.82; safari = 13.79; chrome = 42.27 |}
-        {| year = "2016"; ie = 8.94; firefox = 8.97; safari = 12.9; chrome = 47.79 |}
-        {| year = "2017"; ie = 4.77; firefox = 6.75; safari = 14.54; chrome = 51.76 |}
-        {| year = "2018"; ie = 3.2; firefox = 5.66; safari = 14.44; chrome = 56.31 |}
-        {| year = "2019"; ie = 2.7; firefox = 4.66; safari = 15.23; chrome = 61.72 |}
+        { year = "2009"; ie = 64.97; firefox = 26.85; safari = 2.79; chrome = 1.37 }
+        { year = "2010"; ie = 54.39; firefox = 31.15; safari = 4.22; chrome = 5.94 }
+        { year = "2011"; ie = 44.03; firefox = 29.36; safari = 5.94; chrome = 15.01 }
+        { year = "2012"; ie = 34.27; firefox = 22.69; safari = 8.09; chrome = 25.99 }
+        { year = "2013"; ie = 26.55; firefox = 18.55; safari = 10.66; chrome = 31.71 }
+        { year = "2014"; ie = 17.75; firefox = 14.77; safari = 12.63; chrome = 35.85 }
+        { year = "2015"; ie = 13.3; firefox = 11.82; safari = 13.79; chrome = 42.27 }
+        { year = "2016"; ie = 8.94; firefox = 8.97; safari = 12.9; chrome = 47.79 }
+        { year = "2017"; ie = 4.77; firefox = 6.75; safari = 14.54; chrome = 51.76 }
+        { year = "2018"; ie = 3.2; firefox = 5.66; safari = 14.44; chrome = 56.31 }
+        { year = "2019"; ie = 2.7; firefox = 4.66; safari = 15.23; chrome = 61.72 }
     ]
 
 let drawChart model =
-    AgChart.chart [
-        match model.View with
-        | "Column" ->
-            { makeChart with
-                Title = "Beverage Sales"
-                Subtitle = "by quarter"
-                ShowNavigator = true
-                Sizing = Sizing.Manual(600, 600)
-                Series = [
-                    { makeSeries Column with
-                        Data = Charting.beverageData |> Seq.map box
-                        XKey = "beverage"
-                        XName = "Beverage"
-                        YKeys = [ "Q1"; "Q2"; "Q3"; "Q4" ]
-                    }
+    match model.View with
+    | "Column" ->
+        AgChart.chart [
+            AgChart.options [
+                AgChart.title "Beverage Sales"
+                AgChart.subtitle "by quarter"
+                AgChart.navigator
+                AgChart.width 600
+                AgChart.height 600
+                AgChart.data Charting.beverageData
+                AgChart.series [
+                    Series.create [
+                        Series.seriesKind SeriesKind.Column
+                        Series.xKey "beverage"
+                        Series.xName "Beverage"
+                        Series.yKeys [ "Q1"; "Q2"; "Q3"; "Q4" ]
+                    ]
                 ]
-                Legend = { Spacing = 40; Position = Left }
-                Axes = [
-                    { Kind = AxisKind.Category
-                      Position = Top
-                      Title = None }
-                    { Kind = AxisKind.Number
-                      Position = Right
-                      Title = Some "Total Sales" }
+                AgChart.legend(40, Left)
+                AgChart.axes [
+                    Axis.create [
+                        Axis.axisKind AxisKind.Category
+                        Axis.position Top
+                    ]
+                    Axis.create [
+                        Axis.axisKind AxisKind.Number
+                        Axis.position Right
+                        Axis.title "Total Sales"
+                    ]
                 ]
-            }
-            |> toOptions
-            |> AgChart.options
-        | "Line" ->
-            { makeChart with
-                Title = "Coffee Spending by Quarter"
-                Sizing = Sizing.Auto
-                Series = [
-                    { makeSeries Line with
-                        Data = Charting.quarterlySpending |> Seq.map box
-                        Marker = Some MarkerShape.Circle
-                        XKey = "quarter"
-                        XName = "Quarter"
-                        YNames = [ "Spending" ]
-                        YKeys = [ "spending" ] }
+            ]
+        ]
+    | "Line" ->
+        AgChart.chart [
+            AgChart.options [
+                AgChart.title "Coffee Spending by Quarter"
+                AgChart.autoSize
+                AgChart.height 600
+                AgChart.series [
+                    Series.create [
+                        Series.data Charting.quarterlySpending
+                        Series.marker MarkerShape.Circle
+                        Series.xKey "quarter"
+                        Series.xName "Quarter"
+                        Series.yName "Spending"
+                        Series.yKey "spending"
+                    ]
                 ]
-                Axes = [
-                    { Kind = AxisKind.Category
-                      Position = Bottom
-                      Title = Some "Quarter" }
-                    { Kind = AxisKind.Number
-                      Position = Left
-                      Title = Some "Coffee Spending" }
+                AgChart.axes [
+                    Axis.create [
+                        Axis.axisKind AxisKind.Category
+                        Axis.position Bottom
+                        Axis.title "Quarter"
+                    ]
+                    Axis.create [
+                        Axis.axisKind AxisKind.Number
+                        Axis.position Left
+                        Axis.title "Coffee Spending"
+                    ]
                 ]
-            }
-            |> toOptions
-            |> AgChart.options
-
-        | "Multi" ->
-            { makeChart with
-                Title = "Random Data"
-                Sizing = Sizing.Auto
-                Series = [
+            ]
+        ]
+    | "Multi" ->
+        AgChart.chart [
+            AgChart.options [
+                AgChart.title "Random Data"
+                AgChart.autoSize
+                AgChart.height 600
+                AgChart.series [
                     let mk a b = {| Name = a; Value = b |}
-                    { makeSeries Line with
-                        Data = [ mk "Isaac" 40; mk "Carmen" 45; mk "Prash" 35 ] |> List.map box
-                        Marker = Some MarkerShape.Circle
-                        XKey = "Name"
-                        XName = "Name"
-                        YNames = [ "Value" ]
-                        YKeys = [ "Value" ] }
+                    Series.create [
+                        Series.data [ mk "Isaac" 40; mk "Carmen" 45; mk "Prash" 35 ]
+                        Series.marker MarkerShape.Circle
+                        Series.xKey "Name"
+                        Series.yKey "Value"
+                    ]
                     let mk a b = {| Name = a; Thing = b |}
-                    { makeSeries Column with
-                        Data =  [ mk "Isaac" 20; mk "Carmen" 21; mk "Prash" 24 ] |> List.map box
-                        Marker = Some MarkerShape.Square
-                        XKey = "Name"
-                        XName = "Name"
-                        YNames = [ "Thing" ]
-                        YKeys = [ "Thing" ] }
+                    Series.create [
+                        Series.data [ mk "Isaac" 2; mk "Carmen" 21; mk "Prash" 24 ]
+                        Series.marker MarkerShape.Square
+                        Series.xKey "Name"
+                        Series.yKey "Thing"
+                    ]
                 ]
-                Axes = [
-                    { Kind = AxisKind.Category; Position = Bottom; Title = Some "Name" }
-                    { Kind = AxisKind.Number; Position = Left; Title = Some "Value" }
+                AgChart.axes [
+                    Axis.create [ Axis.axisKind AxisKind.Category; Axis.position Bottom; Axis.title "Name" ]
+                    Axis.create [ Axis.axisKind AxisKind.Number; Axis.position Left; Axis.title "Value" ]
                 ]
-            }
-            |> toOptions
-            |> AgChart.options
-        | "Area" ->
-            { makeChart with
-                Data = Charting.browserData
-                Series = [
-                    { makeSeries Area with
-                        XKey = "year"
-                        XName = "Year"
-                        YKeys = [ "ie"; "firefox"; "safari"; "chrome" ]
-                        YNames = [ "Internet Explorer"; "Firefox"; "Safari"; "Chrome" ]
-                        TooltipRenderer =
-                            Some
-                                (fun param ->
-                                    sprintf "%s - %s%% - Jan %s" (param?yName) param?datum?(param?yKey) param?datum?(param?xKey)
-                                )
-                    }
+            ]
+        ]
+    | "Area" ->
+        AgChart.chart [
+            AgChart.options [
+                AgChart.title "Test"
+                AgChart.subtitle "test"
+                AgChart.data Charting.browserData
+                AgChart.autoSize
+                AgChart.height 600
+                AgChart.series [
+                    Series.create [
+                        Series.seriesKind Area
+                        Series.xKey (fun (f:Charting.BrowserData) -> nameof f.year)
+                        Series.xName "Year"
+                        Series.yKeys (fun (f:Charting.BrowserData) -> [ nameof f.ie; nameof f.firefox; nameof f.safari; nameof f.chrome ])
+                        Series.yNames [ "Internet Explorer"; "Firefox"; "Safari"; "Chrome" ]
+                        Series.tooltipRenderer (fun param -> sprintf "%s - %s%% - Jan %s" (param?yName) param?datum?(param?yKey) param?datum?(param?xKey))
+                    ]
                 ]
-            }
-            |> toOptions
-            |> AgChart.options
-        | _ ->
-            ()
-    ]
+            ]
+        ]
+    | _ ->
+        AgChart.chart []
 
 let drawGrid (model:Model) dispatch =
     Bulma.columns [
@@ -222,14 +232,14 @@ let drawGrid (model:Model) dispatch =
                 prop.style [ style.height (Feliz.length.px 750) ]
                 prop.children [
                     AgGrid.grid [
-                        AgGrid.columnDefs [
-                            { columnDef "Athlete" with  editable = true; filter = Text.FilterText; sortable = true; minWidth = 150; checkboxSelection = true; headerCheckboxSelection = true }
-                            { columnDef "Age" with      editable = true; filter = Number.FilterText; sortable = true; maxWidth = 90 }
-                            { columnDef "Country" with  editable = true; filter = Text.FilterText; sortable = true; minWidth = 150 }
-                            { columnDef "Year" with                      filter = Number.FilterText; sortable = true; maxWidth = 90 }
-                            { columnDef "Date" with                      filter = Date.FilterText; sortable = true }
-                        ]
                         AgGrid.rowData model.Data
+                        AgGrid.columnDefs [
+                            ColumnDef.create [ ColumnDef.field (fun (s:Swimmer) -> nameof s.Athlete); ColumnDef.editable; ColumnDef.filter Text.FilterText; ColumnDef.sortable; ColumnDef.minWidth 150; ColumnDef.checkboxSelection; ColumnDef.headerCheckboxSelection ]
+                            ColumnDef.create [ ColumnDef.field (fun (s:Swimmer) -> nameof s.Age); ColumnDef.editable; ColumnDef.filter Number.FilterText; ColumnDef.sortable; ColumnDef.maxWidth 90 ]
+                            ColumnDef.create [ ColumnDef.field (fun (s:Swimmer) -> nameof s.Country); ColumnDef.editable; ColumnDef.filter Text.FilterText; ColumnDef.sortable; ColumnDef.minWidth 150 ]
+                            ColumnDef.create [ ColumnDef.field (fun (s:Swimmer) -> nameof s.Year); ColumnDef.filter Number.FilterText; ColumnDef.sortable; ColumnDef.maxWidth 90 ]
+                            ColumnDef.create [ ColumnDef.field (fun (s:Swimmer) -> nameof s.Date); ColumnDef.filter Date.FilterText; ColumnDef.sortable ]
+                        ]
 
                         AgGrid.allowImmutableData
                         AgGrid.getRowNodeId (fun x -> x.Id)

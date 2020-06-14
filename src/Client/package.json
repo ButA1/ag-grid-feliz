@@ -17,7 +17,7 @@
         "copy-webpack-plugin": "^5.1.1",
         "core-js": "^3.3.2",
         "css-loader": "^3.5.3",
-        "fable-compiler": "^2.4.6",
+        "fable-compiler": "^2.10.1",
         "fable-loader": "^2.1.8",
         "file-loader": "^4.2.0",
         "gridjs": "^1.1.2",

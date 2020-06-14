@@ -7,11 +7,6 @@ open System
 
 let agChart : obj = import "AgChartsReact " "ag-charts-react"
 type ChartPosition = Bottom | Left | Right | Top
-
-[<RequireQualifiedAccess>]
-type Sizing =
-    | Auto
-    | Manual of width:int * height:int
 type MarkerShape =
     | Circle
     | Cross
@@ -19,117 +14,55 @@ type MarkerShape =
     | Plus
     | Square
     | Triangle
-type Legend =
-    { Spacing : int; Position : ChartPosition }
 type SeriesKind = Line | Column | Area
 [<RequireQualifiedAccess>]
 type AxisKind = Category | Number | Time
+
+[<Erase>]
 type Axis =
-    { Kind : AxisKind
-      Position : ChartPosition
-      Title : string option }
-    static member Default =
-        seq {
-          { Kind = AxisKind.Category; Position = Bottom; Title = None }
-          { Kind = AxisKind.Number; Position = Left; Title = None }
-        }
+    static member inline axisKind (axisKind:AxisKind) = "type" ==> axisKind.ToString().ToLower()
+    static member inline position (v:ChartPosition) = "position" ==> v.ToString().ToLower()
+    static member inline title (v:string) = "title" ==> {| enabled = true; text = v |}
+    static member inline create (v) = createObj v
+
+[<Erase>]
 type Series =
-    { Data : seq<obj>
-      Kind : SeriesKind
-      XKey : string
-      XName : string
-      YKeys : string seq
-      YNames : string seq
-      Visible : bool
-      ShowInLegend : bool
-      TooltipEnabled : bool
-      TooltipRenderer : (obj -> string) option
-      Label : bool
-      Marker : MarkerShape option
-      Fills : string seq
-      Strokes : string seq
-      Opacity : float option
-      NormalisedTo : int option }
-let inline makeSeries<'T> kind =
-    { Data = Seq.empty
-      Kind = kind
-      XKey = ""
-      XName = ""
-      YKeys = Seq.empty
-      YNames = Seq.empty
-      Visible = true
-      ShowInLegend = true
-      TooltipEnabled = true
-      TooltipRenderer = None
-      Label = true
-      Marker = Some Square
-      Fills = Seq.empty
-      Strokes = Seq.empty
-      Opacity = None
-      NormalisedTo = None }
-type ChartType<'T> =
-    { Data : seq<'T>
-      Sizing : Sizing
-      Title : string
-      Subtitle : string
-      Series : Series seq
-      Legend : Legend
-      ShowNavigator : bool
-      Axes : Axis seq }
-let makeChart =
-    { Data = Seq.empty
-      Sizing = Sizing.Auto
-      ShowNavigator = false
-      Title = ""
-      Subtitle = ""
-      Series = Seq.empty
-      Legend = { Spacing = 40; Position = ChartPosition.Right }
-      Axes = Seq.empty }
-let toSeries series =
-    let (|Stackable|Single|) = function Area | Column -> Stackable | _ -> Single
-    let yKeys, yNames = Seq.toArray series.YKeys, Seq.toArray series.YNames
-    createObj [
-        if Seq.isEmpty series.Data then () else "data" ==> Seq.toArray series.Data
-        match series.NormalisedTo with None -> () | Some v -> "normalizedTo" ==> v
-        "type" ==> series.Kind.ToString().ToLower()
-        "xKey" ==> series.XKey
-        "xName" ==> series.XName
-        match series.Kind with Stackable -> () | _ -> "yKey" ==> yKeys.[0]
-        match series.Kind with Stackable -> () | _ -> "yName" ==> yNames.[0]
-        match series.Kind with Stackable -> "yKeys" ==> yKeys | _ -> ()
-        match series.Kind with Stackable -> "yNames" ==> yNames | _ -> ()
-        "visible" ==> series.Visible
-        "showInLegend" ==> series.ShowInLegend
-        "tooltipEnabled" ==> series.TooltipEnabled
-        "label" ==> {| enabled = series.Label |}
-        match series.TooltipRenderer with Some renderer -> "tooltipRenderer" ==> renderer | None -> ()
-        match series.Marker with Some marker -> "marker" ==> {| enabled = true; shape = marker.ToString().ToLower() |} | None -> ()
-        if Seq.isEmpty series.Fills then () else "fills" ==> series.Fills
-        if Seq.isEmpty series.Strokes then () else "strokes" ==> series.Strokes
-        match series.Opacity with Some opacity -> "fillOpacity" ==> opacity | None -> ()
-    ]
-let toOptions chart =
-    createObj [
-        if Seq.isEmpty chart.Data then () else "data" ==> Seq.toArray chart.Data
-        "title" ==> {| text = chart.Title; enabled = not (String.IsNullOrEmpty chart.Title) |}
-        "subtitle" ==> {| text = chart.Subtitle; enabled = not (String.IsNullOrEmpty chart.Subtitle) |}
-        "navigator" ==> {| enabled = chart.ShowNavigator |}
-        "width" ==> match chart.Sizing with Sizing.Manual(width,_) -> width | Sizing.Auto -> -1
-        "height" ==> match chart.Sizing with Sizing.Manual(_,height) -> height | Sizing.Auto -> -1
-        "autoSize" ==> match chart.Sizing with Sizing.Auto -> true | Sizing.Manual _ -> false
-        "series" ==> (chart.Series |> Seq.map toSeries |> Seq.toArray)
-        "legend" ==> {| spacing = chart.Legend.Spacing; position = chart.Legend.Position.ToString().ToLower() |}
-        if Seq.isEmpty chart.Axes then ()
-        else
-            "axes" ==>
-                [| for axis in chart.Axes do
-                   {| ``type`` = axis.Kind.ToString().ToLower()
-                      position = axis.Position.ToString().ToLower()
-                      title = match axis.Title with Some title -> box {| enabled = true; text = title |} | None -> box {| enabled = false |} |}
-                |]
-    ]
+    static member inline data (v:_ seq) = "data" ==> Seq.toArray v
+    static member inline normalizedTo (v:int) = "normalizedTo" ==> v
+    static member inline seriesKind (v:SeriesKind) = "type" ==> v.ToString().ToLower()
+    static member inline xKey (v:string) = "xKey" ==> v
+    static member inline xKey (v: 'a -> string) = "xKey" ==> v (unbox null)
+    static member inline xName v = "xName" ==> v
+    static member inline yKey (v:string) = "yKey" ==> v
+    static member inline yName (v:string) = "yName" ==> v
+    static member inline yKeys (v:string seq) = "yKeys" ==> Seq.toArray v
+    static member inline yKeys (v:'a -> #seq<string>) = "yKeys" ==> (v(unbox null) |> Seq.toArray)
+    static member inline yNames (v:string seq) = "yNames" ==> Seq.toArray v
+    static member inline visible (v:bool) = "visible" ==> v
+    static member inline showInLegend (v:bool) = "showInLegend" ==> v
+    static member inline tooltipEnabled (v:bool) = "tooltipEnabled" ==> v
+    static member inline label (v:bool) = "label" ==> {| enabled = v |}
+    static member inline tooltipRenderer (f:obj -> string) = "tooltipRenderer" ==> f
+    static member inline marker (v:MarkerShape) = "marker" ==> {| enabled = true; shape = v.ToString().ToLower() |}
+    static member inline fills (v:string seq) = "fills" ==> Seq.toArray v
+    static member inline strokes (v:string seq) = "strokes" ==> v
+    static member inline fillOpacity (v:float) = "fillOpacity" ==> v
+    static member inline create v = createObj v
 
 [<Erase>]
 type AgChart =
-    static member inline options value = prop.custom("options", value)
+    static member inline title (v:string) = "title" ==> {| text = v |}
+    static member inline subtitle (v:string) = "subtitle" ==> {| text = v |}
+    static member inline navigator = "navigator" ==> {| enabled = true |}
+    static member inline width (v:int) = "width" ==> v
+    static member inline height (v:int) = "height" ==> v
+    static member inline autoSize = "autoSize" ==> true
+    static member inline legend (spacing:int, position:ChartPosition)  = "legend" ==> {| spacing = spacing; position = position.ToString().ToLower() |}
+    static member inline data (v:_ seq) = "data" ==> Seq.toArray v
+
+    static member inline series v = "series" ==> Seq.toArray v
+    static member inline axes (v:_ seq) = "axes" ==> Seq.toArray v
+
+    static member inline options value = prop.custom("options", createObj value)
     static member inline chart props = Interop.reactApi.createElement (agChart, createObj !!props)
+
